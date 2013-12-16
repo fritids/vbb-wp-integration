@@ -11,7 +11,7 @@
     <codes>
         <code version="*">
             <installcode><![CDATA[
-                    $package = DIR . '/vbsso/vbsso.php';
+                    $package = DIR . '/vbb-wp/vbb-wp.php';
 
                     if (!file_exists($package)) {
                         print_dots_stop();
@@ -38,29 +38,44 @@
             <title>WTT vBBWP post_thanks_main_add_thanks_end</title>
             <hookname>post_thanks_main_add_thanks_end</hookname>
             <phpcode>
-                <![CDATA[echo "hello Hoang";]]>
+                <![CDATA[
+require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] + 1, $postinfo['postid']);
+]]>
+            </phpcode>
+        </plugin>
+        <plugin active="1" executionorder="5">
+            <title>WTT vBBWP post_thanks_main_remove_user_thanks_end</title>
+            <hookname>post_thanks_main_remove_user_thanks_end</hookname>
+            <phpcode>
+                <![CDATA[
+require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] - 1, $postinfo['postid']);
+]]>
             </phpcode>
         </plugin>
     </plugins>
     <phrases>
         <phrasetype name="vBulletin Settings" fieldname="vbsettings">
-            <phrase name="settinggroup_vbbwp_paths" username="wtt" version="1.0">
+            <phrase name="settinggroup_wtt_vbbwp_paths" username="wtt" version="1.0">
                 <![CDATA[WTT vBBWP Settings]]>
             </phrase>
-            <phrase name="setting_vbbwp_wp_path_title" username="wtt" version="1.0">
+            <phrase name="setting_wtt_vbbwp_wp_path_title" username="wtt" version="1.0">
                 <![CDATA[WP Path]]>
             </phrase>
-            <phrase name="setting_vbbwp_wp_path_desc" username="wtt" version="1.0">
+            <phrase name="setting_wtt_vbbwp_wp_path_desc" username="wtt" version="1.0">
                 <![CDATA[Path to WP site]]>
             </phrase>
         </phrasetype>
     </phrases>
     <options>
         <!-- vBBWP PATH -->
-        <settinggroup name="vbbwp_paths" displayorder="200">
-            <setting varname="vbbwp_wp_path" displayorder="10">
+        <settinggroup name="wtt_vbbwp_paths" displayorder="200">
+            <setting varname="wtt_vbbwp_wp_path" displayorder="10">
                 <datatype>free</datatype>
-                <defaultvalue>/home/hoangtran/Projects/projectlana/wtt-home/home</defaultvalue>
+                <defaultvalue>/home/webtretho/public_html/home</defaultvalue>
             </setting>
         </settinggroup>
     </options>
