@@ -18,3 +18,14 @@ function wtt_vbb_wp_update_post_thanks_amount($post_thanks_amount, $postid)
 	}
 }
 
+function wtt_vbb_wp_newreply_post_complete_hoook($replycount, $threadid)
+{
+	global $wpdb;
+	
+	$wp_postid = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid'");
+	
+	if ($wp_postid)
+	{
+		$wpdb->query ( "UPDATE $wpdb->posts SET comment_count = '$replycount' WHERE ID = $wp_postid" );
+	}	
+}

@@ -56,6 +56,17 @@ wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] - 1, $posti
 ]]>
             </phpcode>
         </plugin>
+        <plugin active="1" executionorder="5">
+            <title>WTT vBBWP newreply_post_complete</title>
+            <hookname>newreply_post_complete</hookname>
+            <phpcode>
+                <![CDATA[
+require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+wtt_vbb_wp_newreply_post_complete_hoook($threadinfo['replycount'] + 1, $threadinfo['threadid']);
+]]>
+            </phpcode>
+        </plugin>
     </plugins>
     <phrases>
         <phrasetype name="vBulletin Settings" fieldname="vbsettings">
