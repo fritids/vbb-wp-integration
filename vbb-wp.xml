@@ -78,6 +78,27 @@ wtt_vbb_wp_newthread_post_complete_hoook();
 ]]>
             </phpcode>
         </plugin>
+        <plugin active="0" executionorder="5">
+            <title>WTT vBBWP inlinemod_domovethread</title>
+            <hookname>inlinemod_domovethread</hookname>
+            <phpcode>
+                <![CDATA[
+require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+]]>
+            </phpcode>
+        </plugin>
+<plugin active="0" executionorder="5">
+            <title>WTT vBBWP threadmanage_move_simple</title>
+            <hookname>threadmanage_move_simple</hookname>
+            <phpcode>
+                <![CDATA[
+require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+wtt_vbb_wp_move_thread($threadinfo['threadid'], $destforuminfo['forumid']);
+]]>
+            </phpcode>
+        </plugin>
     </plugins>
     <phrases>
         <phrasetype name="vBulletin Settings" fieldname="vbsettings">

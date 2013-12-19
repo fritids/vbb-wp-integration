@@ -107,5 +107,27 @@ function wtt_vbb_wp_newthread_post_complete_hoook($thread)
 	}
 }
 
-
+/*
+ * sync thread moving to WP
+*/
+function wtt_vbb_wp_move_thread($threadid, $forumid)
+{
+	global $wpdb;
+	
+	$wp_postid = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid'");
+	$sql = $wpdb->prepare ( "SELECT term_taxonomy_id
+			FROM $wpdb->term_taxonomy
+			WHERE term_id = (SELECT term_id FROM $wpdb->terms WHERE slug LIKE %s LIMIT 1)", $forumid . '-%' );
+	$term_taxonomy_id = $wpdb->get_var ( $sql );	
+	
+	if ($wp_postid AND $term_taxonomy_id)
+	{
+		$wpdb->query ( "UPDATE $wpdb->term_relationships SET term_taxonomy_id = $term_taxonomy_id WHERE object_id = $wp_postid" );
+	}		
+	else 
+	{
+		error_log ( "[" . date ( "Y-m-d H:i:s" ) . "] move thread $threadid to forum $forumid - post or term doesn't exist" . "\n", 3, $logfile );
+		return false;
+	}
+}
 
