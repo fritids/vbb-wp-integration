@@ -34,7 +34,7 @@
     <stylevardfns/>
     <stylevars/>
     <plugins>
-        <plugin active="1" executionorder="5">
+        <plugin active="0" executionorder="5">
             <title>WTT vBBWP post_thanks_main_add_thanks_end</title>
             <hookname>post_thanks_main_add_thanks_end</hookname>
             <phpcode>
@@ -45,7 +45,7 @@ wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] + 1, $posti
 ]]>
             </phpcode>
         </plugin>
-        <plugin active="1" executionorder="5">
+        <plugin active="0" executionorder="5">
             <title>WTT vBBWP post_thanks_main_remove_user_thanks_end</title>
             <hookname>post_thanks_main_remove_user_thanks_end</hookname>
             <phpcode>
@@ -56,7 +56,7 @@ wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] - 1, $posti
 ]]>
             </phpcode>
         </plugin>
-        <plugin active="1" executionorder="5">
+        <plugin active="0" executionorder="5">
             <title>WTT vBBWP newreply_post_complete</title>
             <hookname>newreply_post_complete</hookname>
             <phpcode>
@@ -64,6 +64,17 @@ wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] - 1, $posti
 require_once(DIR . '/vbb-wp/vbb-wp.php');
 
 wtt_vbb_wp_newreply_post_complete_hoook($threadinfo['replycount'] + 1, $threadinfo['threadid']);
+]]>
+            </phpcode>
+        </plugin>
+        <plugin active="0" executionorder="5">
+            <title>WTT vBBWP newthread_post_complete</title>
+            <hookname>newthread_post_complete</hookname>
+            <phpcode>
+                <![CDATA[
+require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+wtt_vbb_wp_newthread_post_complete_hoook();
 ]]>
             </phpcode>
         </plugin>
