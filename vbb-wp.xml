@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<product productid="vbb-wp" active="1">
-    <title>WTT VBB WP Integration</title>
-    <description>vBulletin plugin that helps you sync thanks count with WP</description>
-    <version>1.0</version>
-    <url>http://www.webtretho.com</url>
-    <dependencies>
-        <dependency dependencytype="vbulletin" minversion="3.0.0" maxversion=""/>
-    </dependencies>
-    <codes>
-        <code version="*">
-            <installcode><![CDATA[
+<product productid="vbbwp" active="1">
+	<title>WTT VBB WP Integration</title>
+	<description>vBulletin plugin that helps you sync thanks count, replycount, new thread creation/deletion/moving,... with WP</description>
+	<version>1.0</version>
+	<url>http://www.webtretho.com</url>
+	<versioncheckurl />
+	<dependencies>
+		<dependency dependencytype="vbulletin" minversion="3.0.0" maxversion="" />
+	</dependencies>
+	<codes>
+		<code version="*">
+			<installcode><![CDATA[
                     $package = DIR . '/vbb-wp/vbb-wp.php';
 
                     if (!file_exists($package)) {
@@ -19,110 +20,118 @@
                     } else {
                     }
             ]]></installcode>
-            <uninstallcode><![CDATA[
-                    ]]></uninstallcode>
-        </code>
-        <code version="1.0">
-            <installcode><![CDATA[
-            ]]></installcode>
-            <uninstallcode><![CDATA[                
-            ]]></uninstallcode>
-        </code>
-    </codes>
-    <templates>        
-    </templates>
-    <stylevardfns/>
-    <stylevars/>
-    <plugins>
-        <plugin active="0" executionorder="5">
-            <title>WTT vBBWP post_thanks_main_add_thanks_end</title>
-            <hookname>post_thanks_main_add_thanks_end</hookname>
-            <phpcode>
-                <![CDATA[
-require_once(DIR . '/vbb-wp/vbb-wp.php');
+			<uninstallcode>
+                    </uninstallcode>
+		</code>
+		<code version="1.0">
+			<installcode>
+            </installcode>
+			<uninstallcode>                
+            </uninstallcode>
+		</code>
+	</codes>
+	<templates>
+	</templates>
+	<stylevardfns>
+	</stylevardfns>
+	<stylevars>
+	</stylevars>
+	<plugins>
+		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP inlinemod_dodeletethread (delete multiple threads)</title>
+			<hookname>inlinemod_dodeletethread</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
 
-wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] + 1, $postinfo['postid']);
-]]>
-            </phpcode>
-        </plugin>
-        <plugin active="0" executionorder="5">
-            <title>WTT vBBWP post_thanks_main_remove_user_thanks_end</title>
-            <hookname>post_thanks_main_remove_user_thanks_end</hookname>
-            <phpcode>
-                <![CDATA[
-require_once(DIR . '/vbb-wp/vbb-wp.php');
+wtt_vbb_wp_delete_threads(array_keys($threadarray));]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP inlinemod_domovethread (move multiple threads)</title>
+			<hookname>inlinemod_domovethread</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
 
-wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] - 1, $postinfo['postid']);
-]]>
-            </phpcode>
-        </plugin>
-        <plugin active="0" executionorder="5">
-            <title>WTT vBBWP newreply_post_complete</title>
-            <hookname>newreply_post_complete</hookname>
-            <phpcode>
-                <![CDATA[
-require_once(DIR . '/vbb-wp/vbb-wp.php');
+wtt_vbb_wp_move_threads(array_keys($threadarray), $destforuminfo['forumid']);]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP newreply_post_complete</title>
+			<hookname>newreply_post_complete</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
 
-wtt_vbb_wp_newreply_post_complete_hoook($threadinfo['replycount'] + 1, $threadinfo['threadid']);
-]]>
-            </phpcode>
-        </plugin>
-        <plugin active="0" executionorder="5">
-            <title>WTT vBBWP newthread_post_complete</title>
-            <hookname>newthread_post_complete</hookname>
-            <phpcode>
-                <![CDATA[
-require_once(DIR . '/vbb-wp/vbb-wp.php');
+wtt_vbb_wp_newreply_post_complete_hook($threadinfo['replycount'] + 1, $threadinfo['threadid']);]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP newthread_post_complete</title>
+			<hookname>newthread_post_complete</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
 
-wtt_vbb_wp_newthread_post_complete_hoook();
-]]>
-            </phpcode>
-        </plugin>
-        <plugin active="0" executionorder="5">
-            <title>WTT vBBWP inlinemod_domovethread</title>
-            <hookname>inlinemod_domovethread</hookname>
-            <phpcode>
-                <![CDATA[
-require_once(DIR . '/vbb-wp/vbb-wp.php');
+wtt_vbb_wp_newthread_post_complete_hook($threadinfo);]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP post_thanks_main_add_thanks_end</title>
+			<hookname>post_thanks_main_add_thanks_end</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
 
-]]>
-            </phpcode>
-        </plugin>
-<plugin active="0" executionorder="5">
-            <title>WTT vBBWP threadmanage_move_simple</title>
-            <hookname>threadmanage_move_simple</hookname>
-            <phpcode>
-                <![CDATA[
-require_once(DIR . '/vbb-wp/vbb-wp.php');
+wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] + 1, $postinfo['postid']);]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP post_thanks_main_remove_user_thanks_end</title>
+			<hookname>post_thanks_main_remove_user_thanks_end</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
 
-wtt_vbb_wp_move_thread($threadinfo['threadid'], $destforuminfo['forumid']);
-]]>
-            </phpcode>
-        </plugin>
-    </plugins>
-    <phrases>
-        <phrasetype name="vBulletin Settings" fieldname="vbsettings">
-            <phrase name="settinggroup_wtt_vbbwp_paths" username="wtt" version="1.0">
-                <![CDATA[WTT vBBWP Settings]]>
-            </phrase>
-            <phrase name="setting_wtt_vbbwp_wp_path_title" username="wtt" version="1.0">
-                <![CDATA[WP Path]]>
-            </phrase>
-            <phrase name="setting_wtt_vbbwp_wp_path_desc" username="wtt" version="1.0">
-                <![CDATA[Path to WP site]]>
-            </phrase>
-        </phrasetype>
-    </phrases>
-    <options>
-        <!-- vBBWP PATH -->
-        <settinggroup name="wtt_vbbwp_paths" displayorder="200">
-            <setting varname="wtt_vbbwp_wp_path" displayorder="10">
-                <datatype>free</datatype>
-                <defaultvalue>/home/webtretho/public_html/home</defaultvalue>
-            </setting>
-        </settinggroup>
-    </options>
-    <helptopics/>
-    <cronentries/>
-    <faqentries/>
+wtt_vbb_wp_update_post_thanks_amount($postinfo['post_thanks_amount'] - 1, $postinfo['postid']);]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP threadmanage_dodeletethread (delete one thread)</title>
+			<hookname>threadmanage_dodeletethread</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+wtt_vbb_wp_delete_thread($threadinfo['threadid']);]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP threadmanage_move_simple (move one thread)</title>
+			<hookname>threadmanage_move_simple</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+wtt_vbb_wp_move_thread($threadinfo['threadid'], $destforuminfo['forumid']);]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_wtt_vbbwp_wp_db_prefix_desc" date="0" username="wtt" version="1.0"><![CDATA[
+                DB table prefix of WP site
+            ]]></phrase>
+			<phrase name="setting_wtt_vbbwp_wp_db_prefix_title" date="0" username="wtt" version="1.0"><![CDATA[
+                WP db table prefix
+            ]]></phrase>
+			<phrase name="setting_wtt_vbbwp_wp_path_desc" date="0" username="wtt" version="1.0"><![CDATA[
+                Path to WP site
+            ]]></phrase>
+			<phrase name="setting_wtt_vbbwp_wp_path_title" date="0" username="wtt" version="1.0"><![CDATA[
+                WP Path
+            ]]></phrase>
+			<phrase name="settinggroup_wtt_vbbwp_paths" date="0" username="wtt" version="1.0"><![CDATA[
+                WTT vBBWP Settings
+            ]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="wtt_vbbwp_paths" displayorder="200">
+			<setting varname="wtt_vbbwp_wp_db_prefix" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>wp_</defaultvalue>
+			</setting>
+			<setting varname="wtt_vbbwp_wp_path" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>/home/webtretho/public_html/home</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+	<navigation>
+	</navigation>
 </product>
+

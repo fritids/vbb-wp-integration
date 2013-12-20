@@ -1,60 +1,76 @@
 <?php
-
 define('WP_INSTALLING', true);  // to disable loadding all WP plugins 
 define('WP_PATH', $vbulletin->options['wtt_vbbwp_wp_path']); 
 
 require_once(WP_PATH . '/wp-load.php');
 
-// logfile
-$date = new DateTime();
-$result = $date->format('Y-m-d');
-$logfile = '/tmp/homepage_' . $result . '.log';
+$table_prefix = $vbulletin->options['wtt_vbbwp_wp_db_prefix'];
+
+if ($table_prefix)
+	$wpdb->set_prefix($table_prefix); 
+
+
+function logging($message)
+{
+	$date = new DateTime();
+	$result = $date->format('Y-m-d');
+	$logfile = '/tmp/homepage_' . $result . '.log';
+	
+	error_log ( "[" . date ( "Y-m-d H:i:s" ) . "] " . $message . "\n", 3, $logfile );
+}
 
 /*
  * sync thanks amount to WP
  */
 function wtt_vbb_wp_update_post_thanks_amount($post_thanks_amount, $postid) 
 {
-	global $wpdb; 
-	
-	$wp_postid = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'firstpostid' AND meta_value = '$postid'"); 
-
-	if ($wp_postid) 
-	{
-		$wpdb->query ( "UPDATE $wpdb->postmeta SET meta_value = '$post_thanks_amount' WHERE post_id = $wp_postid AND meta_key = 'thanks'" );		
-	}
+	global $wpdb;
+	try {
+		$wp_postid = $wpdb->get_var ( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'firstpostid' AND meta_value = '$postid'" );
+		
+		if ($wp_postid) {
+			$wpdb->query ( "UPDATE $wpdb->postmeta SET meta_value = '$post_thanks_amount' WHERE post_id = $wp_postid AND meta_key = 'thanks'" );
+		}
+	} catch ( Exception $e ) {
+		logging ( "sync thanks amount vbb postid #" . $postid );
+		logging ( print_r($e, true) );
+		return false;		
+	}	
 }
 
 /*
  * sync thread's replycount to WP 
  */
-function wtt_vbb_wp_newreply_post_complete_hoook($replycount, $threadid)
+function wtt_vbb_wp_newreply_post_complete_hook($replycount, $threadid)
 {
 	global $wpdb;
 	
-	$wp_postid = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid'");
-	
-	if ($wp_postid)
-	{
-		$wpdb->query ( "UPDATE $wpdb->posts SET comment_count = '$replycount' WHERE ID = $wp_postid" );
-	}	
+	try {
+		$wp_postid = $wpdb->get_var ( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid'" );
+		
+		if ($wp_postid) {
+			$wpdb->query ( "UPDATE $wpdb->posts SET comment_count = '$replycount' WHERE ID = $wp_postid" );
+		}
+	} catch ( Exception $e ) {
+		logging ( "sync replycount vbb threadid #" . $threadid );
+		logging ( print_r($e, true) );
+		return false;		
+	}
 }
 
 /*
  * sync newly created thread to WP
  */
-function wtt_vbb_wp_newthread_post_complete_hoook($thread)
+function wtt_vbb_wp_newthread_post_complete_hook($thread)
 {
-	global $wpdb, $vbulletin, $logfile;	
-
-	error_log("wtt_vbb_wp_newthread_post_complete_hoook\n", 3, '/tmp/homepage.log');
-
+	global $wpdb, $vbulletin;	
 
 	require_once(DIR . '/includes/class_bbcode.php');
 	
 	$bbcode_parser = new vB_BbCodeParser($vbulletin, fetch_tag_list());
 	$post_content = $bbcode_parser->do_parse( $thread['description'] );
 	$post_content = str_replace('<a href="http:///forum/links.php?url=', '<a href="http://www.webtretho.com/forum/links.php?url=', $post_content);
+	date_default_timezone_set("Asia/Ho_Chi_Minh");
 	$post_date = date("Y-m-d H:i:s", $thread['dateline']);
 	
 	try {
@@ -98,11 +114,12 @@ function wtt_vbb_wp_newthread_post_complete_hoook($thread)
 					'term_taxonomy_id' => $term_taxonomy_id 
 			) );
 		else {
-			error_log ( "[" . date ( "Y-m-d H:i:s" ) . "] sync thread #" . $thread ['threadid'] . " - term_taxonomy_id doesn't exist\n", 3, $logfile );
+			logging ( "sync thread #" . $thread ['threadid'] . " - term_taxonomy_id doesn't exist" );
 			return false;
 		}
 	} catch ( Exception $e ) {
-		error_log ( "[" . date ( "Y-m-d H:i:s" ) . "] sync thread #" . $thread ['threadid'] . " - " . print_r($e, true) . "\n", 3, $logfile );
+		logging ( "sync newly created thread #" . $thread ['threadid'] );
+		logging ( print_r($e, true) );
 		return false;
 	}
 }
@@ -114,20 +131,85 @@ function wtt_vbb_wp_move_thread($threadid, $forumid)
 {
 	global $wpdb;
 	
-	$wp_postid = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid'");
-	$sql = $wpdb->prepare ( "SELECT term_taxonomy_id
+	try {
+		$wp_postid = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid'");
+		$sql = $wpdb->prepare ( "SELECT term_taxonomy_id
+				FROM $wpdb->term_taxonomy
+				WHERE term_id = (SELECT term_id FROM $wpdb->terms WHERE slug LIKE %s LIMIT 1)", $forumid . '-%' );
+		$term_taxonomy_id = $wpdb->get_var ( $sql );
+		
+		if ($wp_postid AND $term_taxonomy_id)
+		{
+			$wpdb->query ( "UPDATE $wpdb->term_relationships SET term_taxonomy_id = $term_taxonomy_id WHERE object_id = $wp_postid" );
+		}
+		else
+		{
+			logging ( "move thread $threadid to forum $forumid - post or term doesn't exist" );
+			return false;
+		}				
+	} catch (Exception $e) {
+		logging ( "move thread #" . print_r ( $threadid, true ) . " to forum: $forumid" );
+		logging ( print_r($e, true) );
+		return false;		
+	}
+}
+
+/*
+ * sync threads moving to WP
+*/
+function wtt_vbb_wp_move_threads($threadids, $forumid) {
+	global $wpdb;
+
+	try {
+		$sql = $wpdb->prepare ( "SELECT term_taxonomy_id
 			FROM $wpdb->term_taxonomy
-			WHERE term_id = (SELECT term_id FROM $wpdb->terms WHERE slug LIKE %s LIMIT 1)", $forumid . '-%' );
-	$term_taxonomy_id = $wpdb->get_var ( $sql );	
-	
-	if ($wp_postid AND $term_taxonomy_id)
-	{
-		$wpdb->query ( "UPDATE $wpdb->term_relationships SET term_taxonomy_id = $term_taxonomy_id WHERE object_id = $wp_postid" );
-	}		
-	else 
-	{
-		error_log ( "[" . date ( "Y-m-d H:i:s" ) . "] move thread $threadid to forum $forumid - post or term doesn't exist" . "\n", 3, $logfile );
+			WHERE term_id = (SELECT term_id FROM $wpdb->terms WHERE slug LIKE %s LIMIT 1) LIMIT 1", $forumid . '-%' );
+		
+		logging ( $sql );
+		
+		$term_taxonomy_id = $wpdb->get_var ( $sql );
+		$tids = "'" . implode ( "', '", $threadids ) . "'";
+		$postids = $wpdb->get_col ( "SELECT DISTINCT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value IN ($tids)" );
+		$pids = "'" . implode ( "', '", $postids ) . "'";
+		$wpdb->query ( "UPDATE $wpdb->term_relationships SET term_taxonomy_id = $term_taxonomy_id WHERE object_id IN ($pids)" );
+	} catch ( Exception $e ) {
+		logging ( "move threads #" . print_r ( $threadids, true ) . " to forum: $forumid" );
+		logging ( print_r($e, true) );
 		return false;
 	}
 }
+
+/*
+ * sync single thread deleting to WP
+*/
+function wtt_vbb_wp_delete_thread($threadid)
+{
+	global $wpdb;
+	try {
+		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = 'trash' WHERE ID = (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid' LIMIT 1)" );
+	} catch ( Exception $e ) {
+		logging ( "delete thread #" . $threadid );
+		logging ( print_r ( $e, true ) );
+		return false;
+	}
+}
+
+/*
+ * sync multiple threads deleting to WP
+*/
+function wtt_vbb_wp_delete_threads($threadids)
+{
+	global $wpdb;
+	try {
+		$tids = "'" . implode ( "', '", $threadids ) . "'";
+		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = 'trash' WHERE ID IN (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value IN ($tids))" );
+	} catch ( Exception $e ) {
+		logging ( "delete threads #" . print_r($threadids, true) );
+		logging ( print_r ( $e, true ) );
+		return false;
+	}
+}
+
+
+
 
