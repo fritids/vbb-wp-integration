@@ -165,8 +165,6 @@ function wtt_vbb_wp_move_threads($threadids, $forumid) {
 			FROM $wpdb->term_taxonomy
 			WHERE term_id = (SELECT term_id FROM $wpdb->terms WHERE slug LIKE %s LIMIT 1) LIMIT 1", $forumid . '-%' );
 		
-		logging ( $sql );
-		
 		$term_taxonomy_id = $wpdb->get_var ( $sql );
 		$tids = "'" . implode ( "', '", $threadids ) . "'";
 		$postids = $wpdb->get_col ( "SELECT DISTINCT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value IN ($tids)" );
