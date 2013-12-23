@@ -180,13 +180,13 @@ function wtt_vbb_wp_move_threads($threadids, $forumid) {
 /*
  * sync single thread deleting to WP
 */
-function wtt_vbb_wp_delete_thread($threadid)
+function wtt_vbb_wp_delete_thread($threadid, $delete = true)
 {
 	global $wpdb;
 	try {
-		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = 'trash' WHERE ID = (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid' LIMIT 1)" );
+		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = '" . ($delete ? 'trash' : 'publish') . "' WHERE ID = (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid' LIMIT 1)" );
 	} catch ( Exception $e ) {
-		logging ( "delete thread #" . $threadid );
+		logging ( ($delete ? 'delete' : 'undelete') . " thread #" . $threadid );
 		logging ( print_r ( $e, true ) );
 		return false;
 	}
@@ -195,34 +195,78 @@ function wtt_vbb_wp_delete_thread($threadid)
 /*
  * sync multiple threads deleting to WP
 */
-function wtt_vbb_wp_delete_threads($threadids)
+function wtt_vbb_wp_delete_threads($threadids, $delete = true)
 {
 	global $wpdb;
 	try {
 		$tids = "'" . implode ( "', '", $threadids ) . "'";
-		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = 'trash' WHERE ID IN (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value IN ($tids))" );
+		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = '" . ($delete ? 'trash' : 'publish') . "' WHERE ID IN (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value IN ($tids))" );
 	} catch ( Exception $e ) {
-		logging ( "delete threads #" . print_r($threadids, true) );
+		logging ( ($delete ? 'delete' : 'undelete') . " threads #" . print_r($threadids, true) );
 		logging ( print_r ( $e, true ) );
 		return false;
 	}
 }
 
 /*
- * sync multiple threads undeleting to WP
+ * sync single thread opening/closing to WP
 */
-function wtt_vbb_wp_undelete_threads($threadids)
+function wtt_vbb_wp_openclose_thread($threadid, $open = true)
 {
 	global $wpdb;
 	try {
-		$tids = "'" . implode ( "', '", $threadids ) . "'";
-		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = 'publish' WHERE ID IN (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value IN ($tids))" );
+		$wpdb->query ( "UPDATE $wpdb->posts SET comment_status = '" . ($open ? 'open' : 'close') . "' WHERE ID = (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid' LIMIT 1)" );
 	} catch ( Exception $e ) {
-		logging ( "delete threads #" . print_r($threadids, true) );
+		logging ( "openclose thread #" . $threadid );
 		logging ( print_r ( $e, true ) );
 		return false;
 	}
 }
 
+/*
+ * sync multiple threads opening/closing to WP
+*/
+function wtt_vbb_wp_openclose_threads($threadids, $open = true)
+{
+	global $wpdb;
+	try {
+		$tids = "'" . implode ( "', '", $threadids ) . "'";
+		$wpdb->query ( "UPDATE $wpdb->posts SET comment_status = '" . ($open ? 'open' : 'close') . "' WHERE ID IN (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value IN ($tids))" );
+	} catch ( Exception $e ) {
+		logging ( "openclose threads #" . print_r($threadids, true) );
+		logging ( print_r ( $e, true ) );
+		return false;
+	}
+}
 
+/*
+ * sync single thread approving/unapproving to WP
+*/
+function wtt_vbb_wp_approve_thread($threadid, $approve = true)
+{
+	global $wpdb;
+	try {
+		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = '" . ($approve ? 'publish' : 'trash') . "' WHERE ID = (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value = '$threadid' LIMIT 1)" );
+	} catch ( Exception $e ) {
+		logging ( ($approve ? 'approve' : 'unapprove') . " thread #" . $threadid );
+		logging ( print_r ( $e, true ) );
+		return false;
+	}
+}
+
+/*
+ * sync multiple threads approving/unapproving to WP
+*/
+function wtt_vbb_wp_approve_threads($threadids, $approve = true)
+{	
+	global $wpdb;
+	try {
+		$tids = "'" . implode ( "', '", $threadids ) . "'";
+		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = '" . ($approve ? 'publish' : 'trash') . "' WHERE ID IN (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value IN ($tids))" );
+	} catch ( Exception $e ) {
+		logging ( ($approve ? 'approve' : 'unapprove') . " threads #" . print_r($threadids, true) );
+		logging ( print_r ( $e, true ) );
+		return false;
+	}
+}
 
