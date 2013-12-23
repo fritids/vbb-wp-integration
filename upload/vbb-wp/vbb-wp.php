@@ -208,6 +208,21 @@ function wtt_vbb_wp_delete_threads($threadids)
 	}
 }
 
+/*
+ * sync multiple threads undeleting to WP
+*/
+function wtt_vbb_wp_undelete_threads($threadids)
+{
+	global $wpdb;
+	try {
+		$tids = "'" . implode ( "', '", $threadids ) . "'";
+		$wpdb->query ( "UPDATE $wpdb->posts SET post_status = 'publish' WHERE ID IN (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'threadid' AND meta_value IN ($tids))" );
+	} catch ( Exception $e ) {
+		logging ( "delete threads #" . print_r($threadids, true) );
+		logging ( print_r ( $e, true ) );
+		return false;
+	}
+}
 
 
 

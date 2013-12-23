@@ -45,6 +45,20 @@
 wtt_vbb_wp_delete_threads(array_keys($threadarray));]]></phpcode>
 		</plugin>
 		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP inlinemod_deletespam (delete multiple spam threads)</title>
+			<hookname>inlinemod_deletespam</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+wtt_vbb_wp_delete_threads(array_keys($threadarray));]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>WTT vBBWP inlinemod_undeletethread (undelete multiple threads)</title>
+			<hookname>inlinemod_undeletethread</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
+
+wtt_vbb_wp_undelete_threads(array_keys($threadarray));]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
 			<title>WTT vBBWP inlinemod_domovethread (move multiple threads)</title>
 			<hookname>inlinemod_domovethread</hookname>
 			<phpcode><![CDATA[require_once(DIR . '/vbb-wp/vbb-wp.php');
