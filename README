@@ -1,0 +1,59 @@
+=== vBB-WP-Integration === 
+
+  vBB-WP-Integration is a plugin that helps sync following info from vBulletin to Wordpress:
+
+  - thread creation 
+  - thread deletion 
+  - thread moving 
+  - thread's open/close/visible/invisible status
+  - thread's thanks count, reply count 
+
+  the corresponding post will be created, deleted or updated on WP. 
+
+
+== Installation ==
+
+  * upload everything from `upload` folder to the `/` root directory of your forum
+  * login to your forum's admincp 
+  * navigate to 'Plugins & Producs' -> 'Manage Products' -> 'Add/Import Product' 
+  * click on the link and browse for vbb-wp.xml file
+  * click on the import button
+  * the plugin should be successfully installed
+
+
+== Settings == 
+
+  * login to admincp 
+  * navigate to 'Settings' -> 'Options' -> 'WTT vBBWP Settings' 
+  * change settings value corresponding with your sites
+    > WP db table prefix: if your wordpress is not multi-site this value must be empty else this value is table prefix of the WP site you want to sync to (ex: wp_3_) 
+    > WP path: path to root directory of your WP site 
+
+
+== Plugins ==
+
+  Following plugins will be added to vBB and appear at 'admincp' -> 'Plugins & Products' -> 'Plugin Manager' -> 'Product : WTT VBB WP Integration'
+
+  WTT vBBWP inlinemod_approvethread (approve multiple threads)
+  WTT vBBWP inlinemod_closeopen (open/close multiple threads)
+  WTT vBBWP inlinemod_deletespam (delete multiple spam threads)
+  WTT vBBWP inlinemod_dodeletethread (delete multiple threads) 
+  WTT vBBWP inlinemod_domovethread (move multiple threads)
+  WTT vBBWP inlinemod_unapprovethread (unapprove multiple threads) 
+  WTT vBBWP inlinemod_undeletethread (undelete multiple threads) 
+  WTT vBBWP newreply_post_complete
+  WTT vBBWP newthread_post_complete 
+  WTT vBBWP post_thanks_main_add_thanks_end
+  WTT vBBWP post_thanks_main_remove_user_thanks_end
+  WTT vBBWP threadmanage_dodeletethread (delete one thread)
+  WTT vBBWP threadmanage_move_simple (move one thread) 
+  WTT vBBWP threadmanage_openclose (open/close one thread)
+
+
+== Changelog ==
+  
+  = 1.0 = 
+  * First release
+  * [Created December 28, 2013]
+
+
