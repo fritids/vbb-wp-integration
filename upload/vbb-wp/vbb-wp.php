@@ -93,7 +93,7 @@ function wtt_vbb_wp_newthread_post_complete_hook($thread)
 		$post_id = $wpdb->insert_id;
 		
 		if (! $post_id) {
-			error_log ( "[" . date ( "Y-m-d H:i:s" ) . "] sync thread #" . $thread ['threadid'] . " - inserting post failed\n", 3, $logfile );
+			logging( "sync thread #" . $thread ['threadid'] . " - inserting post failed" );
 			return false;
 		}
 		
