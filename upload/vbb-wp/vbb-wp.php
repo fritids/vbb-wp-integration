@@ -70,6 +70,8 @@ function wtt_vbb_wp_newthread_post_complete_hook($thread)
 	$bbcode_parser = new vB_BbCodeParser($vbulletin, fetch_tag_list());
 	$post_content = $bbcode_parser->do_parse( $thread['description'] );
 	$post_content = str_replace('<a href="http:///forum/links.php?url=', '<a href="http://www.webtretho.com/forum/links.php?url=', $post_content);
+  date_default_timezone_set("UTC"); 
+  $post_date_gmt = date("Y-m-d H:i:s", $thread['dateline']);
 	date_default_timezone_set("Asia/Ho_Chi_Minh");
 	$post_date = date("Y-m-d H:i:s", $thread['dateline']);
 	
@@ -78,7 +80,7 @@ function wtt_vbb_wp_newthread_post_complete_hook($thread)
 		$wpdb->insert ( $wpdb->posts, array (
 				'post_author' => $thread['postuserid'],
 				'post_date' => $post_date,
-				'post_date_gmt' => $post_date,
+				'post_date_gmt' => $post_date_gmt,
 				'post_content' => $post_content,
 				'post_title' => $thread ['title'],
 				'post_type' => 'post',
@@ -87,7 +89,7 @@ function wtt_vbb_wp_newthread_post_complete_hook($thread)
 				'comment_count' => $thread ['replycount'],
 				'post_status' => 'publish',
 				'post_modified' => $post_date,
-				'post_modified_gmt' => $post_date 
+				'post_modified_gmt' => $post_date_gmt 
 		) );
 		
 		$post_id = $wpdb->insert_id;
